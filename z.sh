@@ -59,7 +59,7 @@ _z() {
         done
 
         # maintain the data file
-        local tempfile="$datafile.$RANDOM"
+        local tempfile="$datafile.$RANDOM.$RANDOM"
         awk < <(_z_dirs 2>/dev/null) -v path="$*" -v now="$(date +%s)" -F"|" '
             BEGIN {
                 rank[path] = 1
@@ -87,8 +87,10 @@ _z() {
         if [ $? -ne 0 -a -f "$datafile" ]; then
             env rm -f "$tempfile"
         else
-            [ "$_Z_OWNER" ] && chown $_Z_OWNER:$(id -ng $_Z_OWNER) "$tempfile"
-            env mv -f "$tempfile" "$datafile" || env rm -f "$tempfile"
+            if [ -f "$tempfile" ]; then
+                [ "$_Z_OWNER" ] && chown $_Z_OWNER:$(id -ng $_Z_OWNER) "$tempfile"
+                env mv -f "$tempfile" "$datafile" || env rm -f "$tempfile"
+            fi
         fi
 
     # tab completion
